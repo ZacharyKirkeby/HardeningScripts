@@ -28,6 +28,9 @@ The hardening scripts should generally be usable across Windows/Linux installati
 - Removes guest users
 - Dumps Groups
 - Dumps Group Privileges
+- Password Length Enforcement
+- Password Complexity Enforcement
+- Account Lockout Policy
 - Dumps Service List
 - Dumps Firewall Config
 - Updates Firewall Config
