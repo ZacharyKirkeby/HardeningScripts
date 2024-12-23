@@ -32,6 +32,10 @@ The hardening scripts should generally be usable across Windows/Linux installati
 - Password Complexity Enforcement
 - Account Lockout Policy
 - Dumps Service List
+- Dumps scheduled tasks
+- Dumps run registers
+- Check windows registers
+- Dump Registers
 - Dumps Firewall Config
 - Updates Firewall Config
 - Updates SSH Configs
