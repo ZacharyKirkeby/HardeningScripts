@@ -36,10 +36,15 @@ The hardening scripts should generally be usable across Windows/Linux installati
 - Dumps run registers
 - Check windows registers
 - Dump Registers
+- Checks for Malicious Tools
+    - Check for C2 references
+    - Check for common hacking tools
+    - Check for kerboroasting references
+- Hash Validation
+
 - Dumps Firewall Config
 - Updates Firewall Config
 - Updates SSH Configs
-- Updates Password Rules
 - Updates software
 - Updates versions (as applicable)
 - 

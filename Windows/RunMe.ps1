@@ -237,4 +237,50 @@ foreach ($term in $searchTerms.Keys) {
     }
 }
 
-Write-Host "Search completed."
+Write-Host "Malicious Tool Search completed."
+
+# The following requires manual follow up:
+# DLL Hash validation
+
+# Display message
+Write-Host "Scanning system DLLs and saving their hashes..."
+
+# Parameters
+$startDirectory = "C:\" # Directory to start scanning (can be adjusted to specific paths)
+$logFile = "C:\DLL_Hashes.txt" # Path to save the hashes
+
+# Initialize or clear the log file
+if (Test-Path $logFile) { Remove-Item -Path $logFile }
+"System DLL Hashes - Generated on $(Get-Date)" | Out-File -FilePath $logFile
+
+# Function to compute the SHA256 hash of a file
+function Get-FileHashValue {
+    param (
+        [string]$FilePath
+    )
+    try {
+        $hash = Get-FileHash -Path $FilePath -Algorithm SHA256 -ErrorAction Stop
+        return $hash.Hash
+    } catch {
+        Write-Warning "Failed to compute hash for: $FilePath"
+        return $null
+    }
+}
+
+# Recursively scan all DLLs on the system and compute their hashes
+try {
+    Get-ChildItem -Path $startDirectory -Recurse -Include *.dll -ErrorAction SilentlyContinue | ForEach-Object {
+        $dllPath = $_.FullName
+        $dllHash = Get-FileHashValue -FilePath $dllPath
+        
+        # Only log if the hash was successfully computed
+        if ($dllHash) {
+            "$dllHash`t$dllPath" | Out-File -FilePath $logFile -Append
+        }
+    }
+} catch {
+    Write-Warning "An error occurred during the scan: $_"
+}
+
+Write-Host "Scan complete. DLL hashes saved to $logFile"
+Write-Host "Compare hash list to know malicious files"
