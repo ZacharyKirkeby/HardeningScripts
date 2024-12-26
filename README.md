@@ -41,6 +41,10 @@ The hardening scripts should generally be usable across Windows/Linux installati
     - Check for common hacking tools
     - Check for kerboroasting references
 - Hash Validation
+- Disable Weak services
+- Enable UAC
+- Disable RDP (CHANGE THIS IF NEEDED)
+- Disable SMB1
 
 - Dumps Firewall Config
 - Updates Firewall Config
