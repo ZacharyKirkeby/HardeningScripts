@@ -101,3 +101,10 @@ ufw enable
 echo "Firewall enabled and configured."
 
 
+# Config SSH
+
+# Config Firewall
+
+# Config Samba
+
+# Not sure
