@@ -120,6 +120,34 @@ systemctl restart sshd
 echo "SSH security settings applied."
 
 # Config Firewall
+echo "Configuring firewall settings..."
+
+# Set default policies
+ufw default deny incoming comment "Deny all incoming traffic by default"
+ufw default allow outgoing comment "Allow all outgoing traffic by default"
+
+# Allow SSH on port 22 (modify if SSH is on a different port)
+ufw allow 22/tcp comment "Allow SSH"
+
+# Allow HTTPS traffic for secure web servers
+ufw allow 443/tcp comment "Allow HTTPS"
+
+# Allow DNS traffic for name resolution
+ufw allow 53/udp comment "Allow DNS"
+
+# Block Ping (ICMP Echo Request)
+echo "Blocking ping (ICMP)..."
+ufw deny from any to any proto icmp comment "Block ICMP"
+
+# Enable logging of denied connections
+echo "Enabling UFW logging for denied connections..."
+ufw logging on
+
+# Enable the firewall
+echo "Enabling the firewall..."
+ufw enable
+
+echo "Firewall configuration completed."
 
 # Config Samba
 echo "Configuring Samba security settings..."

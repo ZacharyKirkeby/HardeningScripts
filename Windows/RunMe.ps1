@@ -376,3 +376,121 @@ Write-Host "SMBv1 protocol has been disabled."
 
 # Notify completion
 Write-Host "All registry changes have been applied successfully."
+
+# Firewall finally
+
+Write-Host "Starting Windows Firewall Configuration..."
+
+# Set Default Policies
+Write-Host "Setting default inbound and outbound policies..."
+New-NetFirewallRule -DisplayName "Block All Incoming by Default" -Direction Inbound -Action Block -Profile Any -Enabled True
+New-NetFirewallRule -DisplayName "Allow All Outgoing by Default" -Direction Outbound -Action Allow -Profile Any -Enabled True
+
+# Allow SSH (Port 22)
+Write-Host "Allowing SSH on port 22..."
+New-NetFirewallRule -DisplayName "Allow SSH" -Direction Inbound -Protocol TCP -LocalPort 22 -Action Allow
+
+# Allow HTTPS (Port 443)
+Write-Host "Allowing HTTPS on port 443..."
+New-NetFirewallRule -DisplayName "Allow HTTPS" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow
+
+# Allow DNS (Port 53 UDP)
+Write-Host "Allowing DNS on port 53 (UDP)..."
+New-NetFirewallRule -DisplayName "Allow DNS" -Direction Inbound -Protocol UDP -LocalPort 53 -Action Allow
+
+# Block ICMP (Ping)
+Write-Host "Blocking ICMP (Ping)..."
+New-NetFirewallRule -DisplayName "Block ICMP" -Direction Inbound -Protocol ICMPv4 -Action Block
+New-NetFirewallRule -DisplayName "Block ICMPv6" -Direction Inbound -Protocol ICMPv6 -Action Block
+
+New-NetFirewallRule -DisplayName "Block SMB and NetBIOS" -Direction Inbound -Protocol TCP -LocalPort 135,137,138,139,445 -Action Block
+
+Get-NetFirewallRule | Format-Table -Property DisplayName, Enabled, Direction, Action, Profile
+
+Get-NetFirewallProfile | Select-Object -Property Name, LogAllowed, LogBlocked, LogFileName
+
+# Enable Logging for Dropped Packets
+Write-Host "Enabling logging for dropped packets..."
+Set-NetFirewallProfile -Profile Domain,Public,Private -LogAllowed False -LogBlocked True -LogFileName "C:\Windows\System32\LogFiles\Firewall\pfirewall.log"
+
+Write-Host "Firewall configuration completed."
+
+# SSH
+
+$sshConfigPath = "C:\ProgramData\ssh\sshd_config"
+
+# Check if SSH configuration file exists
+if (-Not (Test-Path $sshConfigPath)) {
+    Write-Host "SSH configuration file not found. Ensure OpenSSH Server is installed and configured."
+    exit
+}
+
+# Backup the original configuration file
+Write-Host "Creating backup of the SSH configuration file..."
+Copy-Item -Path $sshConfigPath -Destination "$sshConfigPath.bak" -Force
+
+# Define SSH hardening settings
+$sshSettings = @"
+# SSH Hardening Settings
+PasswordAuthentication no
+PermitEmptyPasswords no
+PermitRootLogin no
+PubkeyAuthentication yes
+X11Forwarding no
+ClientAliveInterval 300
+ClientAliveCountMax 0
+"@
+
+# Apply the SSH hardening settings
+Write-Host "Applying SSH hardening settings..."
+Add-Content -Path $sshConfigPath -Value $sshSettings
+
+# Restart SSH service to apply changes
+Write-Host "Restarting SSH service..."
+Restart-Service -Name sshd
+
+Write-Host "SSH hardening completed."
+
+# PHP
+# PHP Hardening
+
+Write-Host "Starting PHP Hardening..."
+
+# Path to PHP configuration file
+$phpConfigPath = "C:\Path\To\php.ini"
+
+# Check if PHP configuration file exists
+if (-Not (Test-Path $phpConfigPath)) {
+    Write-Host "PHP configuration file not found. Ensure PHP is installed and configured."
+    exit
+}
+
+# Backup the original configuration file
+Write-Host "Creating backup of the PHP configuration file..."
+Copy-Item -Path $phpConfigPath -Destination "$phpConfigPath.bak" -Force
+
+# Define PHP hardening settings
+$phpSettings = @"
+; PHP Hardening Settings
+expose_php = Off
+display_errors = Off
+log_errors = On
+disable_functions = exec,passthru,shell_exec,system,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source
+file_uploads = Off
+allow_url_fopen = Off
+session.cookie_httponly = 1
+session.cookie_secure = 1
+session.use_strict_mode = 1
+"@
+
+# Apply the PHP hardening settings
+Write-Host "Applying PHP hardening settings..."
+Add-Content -Path $phpConfigPath -Value $phpSettings
+
+# Restart PHP service (example for IIS or PHP-FPM)
+Write-Host "Restarting PHP service..."
+Restart-Service -Name w3svc  # Replace 'w3svc' with the correct service name if using PHP-FPM or other setup
+
+Write-Host "PHP hardening completed."
+
+Write-Host "Basic Hardening Complete"
