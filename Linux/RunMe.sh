@@ -103,8 +103,52 @@ echo "Firewall enabled and configured."
 
 # Config SSH
 
+echo "Configuring SSH security settings..."
+sed -i '/^PermitRootLogin /d' /etc/ssh/sshd_config
+echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+sed -i '/^PasswordAuthentication /d' /etc/ssh/sshd_config
+echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+sed -i '/^PermitEmptyPasswords /d' /etc/ssh/sshd_config
+echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
+sed -i '/^PubkeyAuthentication /d' /etc/ssh/sshd_config
+echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
+sed -i '/^X11Forwarding /d' /etc/ssh/sshd_config
+echo "X11Forwarding no" >> /etc/ssh/sshd_config
+sed -i '/^ClientAliveInterval /d' /etc/ssh/sshd_config
+echo "ClientAliveInterval 300" >> /etc/ssh/sshd_config
+systemctl restart sshd
+echo "SSH security settings applied."
+
 # Config Firewall
 
 # Config Samba
+echo "Configuring Samba security settings..."
+SAMBA_CONF="/etc/samba/smb.conf"
+if [[ -f "$SAMBA_CONF" ]]; then
+    sed -i '/\[global\]/a \
+    client min protocol = SMB2\n\
+    server min protocol = SMB2\n\
+    restrict anonymous = 2\n\
+    ntlm auth = no\n\
+    smb encrypt = required\n\
+    null passwords = no\n' "$SAMBA_CONF"
+    systemctl restart smbd
+    echo "Samba settings hardened."
+else
+    echo "Samba configuration file not found. Skipping Samba hardening."
+fi
 
-# Not sure
+
+# PHP Hardening
+echo "Configuring PHP security settings..."
+PHP_INI="/etc/php/7.4/apache2/php.ini"
+if [[ -f "$PHP_INI" ]]; then
+    sed -i 's/^expose_php =.*/expose_php = Off/' "$PHP_INI"
+    sed -i 's/^display_errors =.*/display_errors = Off/' "$PHP_INI"
+    sed -i 's/^allow_url_fopen =.*/allow_url_fopen = Off/' "$PHP_INI"
+    sed -i 's/^allow_url_include =.*/allow_url_include = Off/' "$PHP_INI"
+    sed -i 's/^disable_functions =.*/disable_functions = exec,passthru,shell_exec,system,proc_open,popen/' "$PHP_INI"
+    echo "PHP settings hardened."
+else
+    echo "PHP configuration file not found. Skipping PHP hardening."
+fi

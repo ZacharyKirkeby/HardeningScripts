@@ -23,32 +23,4 @@ The hardening scripts should generally be usable across Windows/Linux installati
 
 ### Functionality
 
-- Dumps User List
-- Dumps User Privileges
-- Removes guest users
-- Dumps Groups
-- Dumps Group Privileges
-- Password Length Enforcement
-- Password Complexity Enforcement
-- Account Lockout Policy
-- Dumps Service List
-- Dumps scheduled tasks
-- Dumps run registers
-- Check windows registers
-- Dump Registers
-- Checks for Malicious Tools
-    - Check for C2 references
-    - Check for common hacking tools
-    - Check for kerboroasting references
-- Hash Validation
-- Disable Weak services
-- Enable UAC
-- Disable RDP (CHANGE THIS IF NEEDED)
-- Disable SMB1
-
-- Dumps Firewall Config
-- Updates Firewall Config
-- Updates SSH Configs
-- Updates software
-- Updates versions (as applicable)
-- 
+In it's current form, both scripts must be run as an administrator. Automated configurations, namely disabling services, updates, and changes to rules will all occur automatically. Users, groups, hashes, and other tasks requiring a degree of manual review will be saved to files for review to ensure appropriate compliance. 
