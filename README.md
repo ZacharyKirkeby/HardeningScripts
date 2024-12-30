@@ -24,3 +24,10 @@ The hardening scripts should generally be usable across Windows/Linux installati
 ### Functionality
 
 In it's current form, both scripts must be run as an administrator. Automated configurations, namely disabling services, updates, and changes to rules will all occur automatically. Users, groups, hashes, and other tasks requiring a degree of manual review will be saved to files for review to ensure appropriate compliance. 
+
+Each runMe file does everything that has been programmed. For smaller operatios, individual files for individual actions like threat hunting, password rules, or user group review has been added. 
+
+### TODO
+
+- [ ] Active Directory rules
+- [ ] CMD varient
