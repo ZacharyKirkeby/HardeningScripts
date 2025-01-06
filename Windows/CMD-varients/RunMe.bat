@@ -65,6 +65,63 @@ dism /online /disable-feature /featurename:SMB1Protocol /norestart
 echo Enabling User Account Control (UAC)...
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 1 /f
 
+@echo off
+setlocal EnableDelayedExpansion
+
+echo Checking shortcuts for suspicious modifications...
+echo.
+
+:: Define locations to check
+set "DESKTOP=%USERPROFILE%\Desktop"
+set "STARTMENU=%APPDATA%\Microsoft\Windows\Start Menu"
+set "QUICKLAUNCH=%APPDATA%\Microsoft\Internet Explorer\Quick Launch"
+set "TASKBAR=%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"
+
+:: Create a temporary VBS script to read shortcut properties
+set "vbscript=%TEMP%\read_shortcut.vbs"
+echo Set objShell = CreateObject("WScript.Shell") > "%vbscript%"
+echo Set objArgs = WScript.Arguments >> "%vbscript%"
+echo Set objShortcut = objShell.CreateShortcut(objArgs(0)) >> "%vbscript%"
+echo WScript.Echo objShortcut.TargetPath ^& "|" ^& objShortcut.Arguments >> "%vbscript%"
+
+:: Function to check shortcuts in a directory
+:CheckDir
+set "checkdir=%~1"
+if not exist "%checkdir%" goto :EOF
+echo Checking shortcuts in: %checkdir%
+echo.
+
+for /r "%checkdir%" %%F in (*.lnk) do (
+    for /f "delims=" %%L in ('cscript //nologo "%vbscript%" "%%F"') do (
+        set "linkinfo=%%L"
+        set "suspicious="
+        
+        :: Check for suspicious targets
+        echo !linkinfo! | findstr /i "cmd.exe powershell.exe temp tmp launch script" >nul && set "suspicious=1"
+        
+        if defined suspicious (
+            echo SUSPICIOUS SHORTCUT FOUND:
+            echo Shortcut: %%~nxF
+            echo Location: %%F
+            echo Target: !linkinfo!
+            echo.
+        )
+    )
+)
+goto :EOF
+
+:: Check each directory
+call :CheckDir "%DESKTOP%"
+call :CheckDir "%STARTMENU%"
+call :CheckDir "%QUICKLAUNCH%"
+call :CheckDir "%TASKBAR%"
+
+:: Clean up
+del "%vbscript%" 2>nul
+
+echo Shortcut check complete.
+pause
+
 :: Notify completion
 echo Hardening script completed successfully.
 pause
