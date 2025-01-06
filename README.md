@@ -33,3 +33,4 @@ Each runMe file does everything that has been programmed. For smaller operatios,
 - [ ] CMD varient
     - [ x ] primitive version 
 - [ ] interactive menu
+- [ ] Splunk Scripts

@@ -1,5 +1,10 @@
 # Functionality
 
+TODO
+    - windows logging rules
+    - powershell logging rules
+    - double check integrity of .lnk files?
+
 Firstly, never run a shell script at an elevated level without fully reviewing what it does. That means read the damn code. 
 
 The following is a non exhaustive list of functions performed by this script:
