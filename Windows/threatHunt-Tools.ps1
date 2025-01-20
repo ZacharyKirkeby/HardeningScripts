@@ -1,3 +1,5 @@
+# Warning: this runs really slowly
+
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Error "Rerun as an administrator."
     exit
@@ -33,15 +35,11 @@ $searchTerms = @{
     "Sliver"         = "Sliver C2 framework detected. Investigate further."
 }
 
-# Define starting directory (entire system)
 $startDirectory = "C:\"
-
-# Loop through each search term
 foreach ($term in $searchTerms.Keys) {
     Write-Host "Searching for: $term..."
     
     try {
-        # Search the entire file system for matches
         $results = Get-ChildItem -Path $startDirectory -Recurse -ErrorAction SilentlyContinue | `
                    Select-String -Pattern $term -SimpleMatch -ErrorAction SilentlyContinue
 
@@ -51,8 +49,7 @@ foreach ($term in $searchTerms.Keys) {
             Clear-Host
         }
     } catch {
-        Write-Warning "Error while searching for $term: $_"
+        Write-Warning ("Error while searching for {0}: {1}" -f $term, $_)
     }
 }
-
 Write-Host "Malicious Tool Search completed."
